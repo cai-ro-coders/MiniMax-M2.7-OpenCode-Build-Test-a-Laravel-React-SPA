@@ -1,0 +1,49 @@
+AI Prompt
+
+I want to build a Multitenant Hotel Management System
+Core Modules:
+Include tables with proper relationships, constraints, and fields for:
+Hotels
+Users
+Hotel_User (pivot with roles)
+Room Types
+Rooms
+Guests
+Bookings
+Payments
+Services (optional add-ons)
+Booking_Services (many-to-many relationship)
+
+RELATIONSHIP OVERVIEW
+Users ↔ Hotels → many-to-many (with role)
+Hotels → Rooms → Room Types
+Hotels→ Guests
+Hotels → Bookings
+Bookings → Room + Guests
+Bookings → Payments
+
+Seeder data (demo hotels, rooms, bookings)
+
+Create Dashboard Page
+- Display real-time statistics:
+- Total Hotels
+- Total Rooms
+- Total Guest
+- statistics by hotels
+-Use charts (Chart.js) for dashboard stats
+
+Create Room Page
+- View all Room (paginated, searchable)
+- Add, edit and Delete Room 
+
+Create Hotel Page
+- View all hotel (paginated, searchable)
+- Add, edit and Delete hotel 
+
+Create Guests Page
+- View all Guests (paginated, searchable)
+- Add, edit and Delete Guests 
+
+Create Bookings Page
+- View all Bookings (paginated, searchable)
+- Add, edit and Delete Bookings 
