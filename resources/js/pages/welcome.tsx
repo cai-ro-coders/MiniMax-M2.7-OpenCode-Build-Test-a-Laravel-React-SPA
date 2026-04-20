@@ -1,399 +1,907 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import { dashboard, login, register } from '@/routes';
+import { Head } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 
-export default function Welcome({
-    canRegister = true,
-}: {
-    canRegister?: boolean;
-}) {
-    const { auth } = usePage().props;
+interface Testimonial {
+    id: number;
+    name: string;
+    location: string;
+    rating: number;
+    text: string;
+    avatar: string;
+}
+
+interface Room {
+    id: number;
+    name: string;
+    description: string;
+    price: string;
+    image: string;
+}
+
+interface Amenity {
+    id: number;
+    name: string;
+    description: string;
+    icon: string;
+}
+
+interface GalleryImage {
+    id: number;
+    title: string;
+    image: string;
+}
+
+const testimonials: Testimonial[] = [
+    {
+        id: 1,
+        name: "Sarah Mitchell",
+        location: "New York, USA",
+        rating: 5,
+        text: "An absolutely unforgettable experience. The attention to detail and personalized service made our anniversary celebration truly magical.",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+    },
+    {
+        id: 2,
+        name: "James Anderson",
+        location: "London, UK",
+        rating: 5,
+        text: "From the moment we arrived, we were treated like royalty. The spa treatments were divine and the rooms are simply stunning.",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+    },
+    {
+        id: 3,
+        name: "Emma Thompson",
+        location: "Sydney, Australia",
+        rating: 5,
+        text: "The perfect escape from the everyday. Impeccable design, world-class dining, and a level of comfort beyond compare.",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+    },
+];
+
+const rooms: Room[] = [
+    {
+        id: 1,
+        name: "Deluxe King Suite",
+        description: "Spacious elegance with panoramic views, featuring a king-size bed with premium linens and a marble ensuite bathroom.",
+        price: "$450",
+        image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=600&fit=crop",
+    },
+    {
+        id: 2,
+        name: "Ocean View Room",
+        description: "Wake to breathtaking ocean vistas in this serene retreat, complete with a private balcony and contemporary furnishings.",
+        price: "$380",
+        image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop",
+    },
+    {
+        id: 3,
+        name: "Garden Pavilion",
+        description: "A tranquil sanctuary surrounded by lush landscaping, featuring an outdoor soaking tub and private garden access.",
+        price: "$520",
+        image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&h=600&fit=crop",
+    },
+    {
+        id: 4,
+        name: "Presidential Suite",
+        description: "The pinnacle of luxury living with separate living and dining areas, butler service, and exclusive amenities.",
+        price: "$850",
+        image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&h=600&fit=crop",
+    },
+];
+
+const amenities: Amenity[] = [
+    {
+        id: 1,
+        name: "Serenity Spa",
+        description: "Rejuvenating treatments and holistic therapies in our award-winning spa",
+        icon: "spa",
+    },
+    {
+        id: 2,
+        name: "Infinity Pool",
+        description: "A stunning outdoor pool with panoramic views and poolside service",
+        icon: "pool",
+    },
+    {
+        id: 3,
+        name: "Fine Dining",
+        description: "Culinary excellence featuring locally sourced ingredients and world-class chefs",
+        icon: "restaurant",
+    },
+    {
+        id: 4,
+        name: "Fitness Center",
+        description: "State-of-the-art equipment and personal training services",
+        icon: "fitness",
+    },
+    {
+        id: 5,
+        name: "Concierge",
+        description: "Personalized assistance for all your travel and leisure needs",
+        icon: "concierge",
+    },
+    {
+        id: 6,
+        name: "Private Beach",
+        description: "Exclusive beach access with sun loungers and water activities",
+        icon: "beach",
+    },
+];
+
+const galleryImages: GalleryImage[] = [
+    { id: 1, title: "Hotel Exterior", image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop" },
+    { id: 2, title: "Lobby", image: "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&h=400&fit=crop" },
+    { id: 3, title: "Pool Area", image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=400&fit=crop" },
+    { id: 4, title: "Restaurant", image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=400&fit=crop" },
+    { id: 5, title: "Spa Treatment", image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&h=400&fit=crop" },
+    { id: 6, title: "Beach Sunset", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=400&fit=crop" },
+];
+
+const AmenityIcon = ({ type }: { type: string }) => {
+    const icons: Record<string, JSX.Element> = {
+        spa: (
+            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                <path d="M8 14s1.5 2 4 2 4-2 4-2" strokeLinecap="round" />
+                <circle cx="9" cy="9" r="1" fill="currentColor" />
+                <circle cx="15" cy="9" r="1" fill="currentColor" />
+            </svg>
+        ),
+        pool: (
+            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M2 12h20M2 12c0-1.5 1.5-3 3-3s3 1.5 3 3-1.5 3-3 3-3-1.5-3-3zM8 12c0-1.5 1.5-3 3-3s3 1.5 3 3-1.5 3-3 3-3-1.5-3-3zM14 12c0-1.5 1.5-3 3-3s3 1.5 3 3-1.5 3-3 3-3-1.5-3-3z" strokeLinecap="round" />
+            </svg>
+        ),
+        restaurant: (
+            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2M7 2v20M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+        ),
+        fitness: (
+            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M6.5 6.5a2 2 0 013 0l8.5 8.5a2 2 0 01-3 3l-8.5-8.5a2 2 0 010-3z" />
+                <path d="M3 3l4 4M21 21l-4-4M17 17l-2-2M7 7l-2-2" strokeLinecap="round" />
+            </svg>
+        ),
+        concierge: (
+            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 2a5 5 0 015 5c0 4-5 11-5 11s-5-7-5-11a5 5 0 015-5z" />
+                <circle cx="12" cy="9" r="2.5" />
+            </svg>
+        ),
+        beach: (
+            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />
+                <circle cx="8" cy="14" r="1" fill="currentColor" />
+                <circle cx="16" cy="10" r="1" fill="currentColor" />
+                <circle cx="12" cy="15" r="1" fill="currentColor" />
+            </svg>
+        ),
+    };
+
+    return icons[type] || null;
+};
+
+const useScrollAnimation = () => {
+    const ref = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                }
+            },
+            { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+        );
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    return { ref, isVisible };
+};
+
+const AnimatedSection = ({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
+    const { ref, isVisible } = useScrollAnimation();
+
+    return (
+        <div
+            ref={ref}
+            className={`transition-all duration-1000 ease-out ${className}`}
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+                transitionDelay: `${delay}ms`,
+            }}
+        >
+            {children}
+        </div>
+    );
+};
+
+const StarRating = ({ rating }: { rating: number }) => (
+    <div className="flex gap-1">
+        {[...Array(5)].map((_, i) => (
+            <svg key={i} className={`w-4 h-4 ${i < rating ? 'text-[#C9A962]' : 'text-gray-300'}`} viewBox="0 0 20 20" fill="currentColor">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+        ))}
+    </div>
+);
+
+export default function Welcome() {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        checkIn: '',
+        checkOut: '',
+        guests: '',
+        roomType: '',
+        message: '',
+    });
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log('Form submitted:', formData);
+    };
+
+    const scrollToSection = (id: string) => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     return (
         <>
-            <Head title="Welcome">
-                <link rel="preconnect" href="https://fonts.bunny.net" />
-                <link
-                    href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600"
-                    rel="stylesheet"
-                />
+            <Head title="StayEase Hotel | Where Comfort Meets Elegance">
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+                <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
             </Head>
-            <div className="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] lg:justify-center lg:p-8 dark:bg-[#0a0a0a]">
-                <header className="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
-                    <nav className="flex items-center justify-end gap-4">
-                        {auth.user ? (
-                            <Link
-                                href={dashboard()}
-                                className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                            >
-                                Dashboard
-                            </Link>
-                        ) : (
-                            <>
-                                <Link
-                                    href={login()}
-                                    className="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
-                                >
-                                    Log in
-                                </Link>
-                                {canRegister && (
-                                    <Link
-                                        href={register()}
-                                        className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+
+            <div className="font-sans antialiased">
+                <style>{`
+                    html {
+                        scroll-behavior: smooth;
+                    }
+                    body {
+                        font-family: 'Inter', sans-serif;
+                        background-color: #FDFCF9;
+                        color: #2D2D2D;
+                    }
+                    .font-serif {
+                        font-family: 'Cormorant Garamond', serif;
+                    }
+                    .text-gold {
+                        color: #C9A962;
+                    }
+                    .bg-cream {
+                        background-color: #FDFCF9;
+                    }
+                    .bg-cream-dark {
+                        background-color: #F5F0E8;
+                    }
+                    .bg-charcoal {
+                        background-color: #2D2D2D;
+                    }
+                    .border-gold {
+                        border-color: #C9A962;
+                    }
+                    ::-webkit-scrollbar {
+                        width: 8px;
+                    }
+                    ::-webkit-scrollbar-track {
+                        background: #F5F0E8;
+                    }
+                    ::-webkit-scrollbar-thumb {
+                        background: #C9A962;
+                        border-radius: 4px;
+                    }
+                `}</style>
+
+                {/* Navigation */}
+                <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FDFCF9]/95 backdrop-blur-sm border-b border-[#E8E2D9]">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                        <div className="flex items-center justify-between h-20">
+                            <div className="flex items-center gap-2">
+                                <span className="text-2xl font-serif font-semibold text-charcoal">StayEase</span>
+                                <span className="text-2xl font-serif text-gold">Hotel</span>
+                            </div>
+
+                            <div className="hidden md:flex items-center gap-10">
+                                {['About', 'Rooms', 'Amenities', 'Gallery', 'Testimonials', 'Contact'].map((item) => (
+                                    <button
+                                        key={item}
+                                        onClick={() => scrollToSection(item.toLowerCase())}
+                                        className="text-sm tracking-wide text-[#5C5C5C] hover:text-[#C9A962] transition-colors duration-300"
                                     >
-                                        Register
-                                    </Link>
-                                )}
-                            </>
-                        )}
-                    </nav>
-                </header>
-                <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
-                        <div className="flex-1 rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]">
-                            <h1 className="mb-1 font-medium">
-                                Let's get started
-                            </h1>
-                            <p className="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                                Laravel has an incredibly rich ecosystem.
-                                <br />
-                                We suggest starting with the following.
+                                        {item}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => scrollToSection('contact')}
+                                className="px-6 py-2.5 bg-[#2D2D2D] text-white text-sm tracking-wider rounded-full hover:bg-[#C9A962] transition-all duration-300"
+                            >
+                                Book Now
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+
+                {/* Hero Section */}
+                <section className="relative h-screen flex items-center justify-center overflow-hidden">
+                    <div
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{
+                            backgroundImage: 'url(https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1920&h=1080&fit=crop)',
+                        }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#2D2D2D]/40 via-[#2D2D2D]/20 to-[#2D2D2D]/60" />
+                    </div>
+
+                    <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+                        <div className="mb-6 flex items-center justify-center gap-3">
+                            <div className="w-12 h-[1px] bg-[#C9A962]" />
+                            <span className="text-[#C9A962] text-sm tracking-[0.3em] uppercase">Welcome to</span>
+                            <div className="w-12 h-[1px] bg-[#C9A962]" />
+                        </div>
+
+                        <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white font-light mb-6 leading-tight">
+                            StayEase <span className="text-[#C9A962]">Hotel</span>
+                        </h1>
+
+                        <p className="text-white/90 text-lg md:text-xl tracking-wide mb-10 font-light">
+                            Where Comfort Meets Elegance
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <button
+                                onClick={() => scrollToSection('contact')}
+                                className="px-10 py-4 bg-[#C9A962] text-white text-sm tracking-[0.2em] rounded-full hover:bg-white hover:text-[#2D2D2D] transition-all duration-300"
+                            >
+                                Book Your Stay
+                            </button>
+                            <button
+                                onClick={() => scrollToSection('about')}
+                                className="px-10 py-4 border border-white/50 text-white text-sm tracking-[0.2em] rounded-full hover:bg-white hover:text-[#2D2D2D] transition-all duration-300"
+                            >
+                                Discover More
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+                        <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                    </div>
+                </section>
+
+                {/* About Section */}
+                <section id="about" className="py-24 lg:py-32 bg-cream">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                        <div className="grid lg:grid-cols-2 gap-16 items-center">
+                            <AnimatedSection>
+                                <div className="relative">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&h=1000&fit=crop"
+                                        alt="Hotel Interior"
+                                        className="w-full h-[500px] object-cover rounded-lg shadow-xl"
+                                    />
+                                    <div className="absolute -bottom-8 -right-8 bg-[#C9A962] text-white p-8 rounded-lg shadow-xl hidden md:block">
+                                        <p className="font-serif text-4xl font-light">25+</p>
+                                        <p className="text-sm tracking-wider mt-1">Years of Excellence</p>
+                                    </div>
+                                </div>
+                            </AnimatedSection>
+
+                            <AnimatedSection delay={200}>
+                                <div className="mb-4 flex items-center gap-3">
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                    <span className="text-[#C9A962] text-sm tracking-[0.2em] uppercase">Our Story</span>
+                                </div>
+
+                                <h2 className="font-serif text-4xl lg:text-5xl text-[#2D2D2D] mb-8 leading-tight">
+                                    A Legacy of <span className="text-gold">Refined</span> Hospitality
+                                </h2>
+
+                                <p className="text-[#5C5C5C] leading-relaxed mb-6">
+                                    Nestled in the heart of a breathtaking coastal paradise, StayEase Hotel has been the epitome of luxury accommodation since 1998. Our commitment to excellence has earned us recognition as one of the world's premier boutique hotels.
+                                </p>
+
+                                <p className="text-[#5C5C5C] leading-relaxed mb-8">
+                                    Every corner of our hotel reflects a harmonious blend of contemporary elegance and timeless sophistication. From the meticulously curated artwork adorning our walls to the hand-selected fabrics in each room, we have crafted an environment where luxury is not just experienced, but felt in every moment.
+                                </p>
+
+                                <div className="grid grid-cols-3 gap-8 pt-8 border-t border-[#E8E2D9]">
+                                    <div>
+                                        <p className="font-serif text-3xl text-[#C9A962]">98</p>
+                                        <p className="text-sm text-[#5C5C5C] mt-1">Guest Rooms</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-serif text-3xl text-[#C9A962]">12</p>
+                                        <p className="text-sm text-[#5C5C5C] mt-1">Suites</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-serif text-3xl text-[#C9A962]">5</p>
+                                        <p className="text-sm text-[#5C5C5C] mt-1">Restaurants</p>
+                                    </div>
+                                </div>
+                            </AnimatedSection>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Rooms & Suites Section */}
+                <section id="rooms" className="py-24 lg:py-32 bg-[#F5F0E8]">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                        <AnimatedSection>
+                            <div className="text-center mb-16">
+                                <div className="mb-4 flex items-center justify-center gap-3">
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                    <span className="text-[#C9A962] text-sm tracking-[0.2em] uppercase">Accommodations</span>
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                </div>
+                                <h2 className="font-serif text-4xl lg:text-5xl text-[#2D2D2D]">
+                                    Rooms & <span className="text-gold">Suites</span>
+                                </h2>
+                            </div>
+                        </AnimatedSection>
+
+                        <div className="grid md:grid-cols-2 gap-8">
+                            {rooms.map((room, index) => (
+                                <AnimatedSection key={room.id} delay={index * 150}>
+                                    <div className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
+                                        <div className="relative overflow-hidden h-72">
+                                            <img
+                                                src={room.image}
+                                                alt={room.name}
+                                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                                            />
+                                            <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full">
+                                                <span className="font-serif text-xl text-[#C9A962]">{room.price}</span>
+                                                <span className="text-xs text-[#5C5C5C]">/night</span>
+                                            </div>
+                                        </div>
+                                        <div className="p-8">
+                                            <h3 className="font-serif text-2xl text-[#2D2D2D] mb-3 group-hover:text-[#C9A962] transition-colors duration-300">
+                                                {room.name}
+                                            </h3>
+                                            <p className="text-[#5C5C5C] leading-relaxed mb-6">
+                                                {room.description}
+                                            </p>
+                                            <button className="inline-flex items-center gap-2 text-[#C9A962] text-sm tracking-wider hover:gap-4 transition-all duration-300">
+                                                View Details
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </AnimatedSection>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Amenities Section */}
+                <section id="amenities" className="py-24 lg:py-32 bg-cream">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                        <AnimatedSection>
+                            <div className="text-center mb-16">
+                                <div className="mb-4 flex items-center justify-center gap-3">
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                    <span className="text-[#C9A962] text-sm tracking-[0.2em] uppercase">Features</span>
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                </div>
+                                <h2 className="font-serif text-4xl lg:text-5xl text-[#2D2D2D]">
+                                    World-Class <span className="text-gold">Amenities</span>
+                                </h2>
+                            </div>
+                        </AnimatedSection>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                            {amenities.map((amenity, index) => (
+                                <AnimatedSection key={amenity.id} delay={index * 100}>
+                                    <div className="group bg-white rounded-xl p-8 text-center shadow-md hover:shadow-xl transition-all duration-500">
+                                        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#F5F0E8] flex items-center justify-center text-[#C9A962] group-hover:bg-[#C9A962] group-hover:text-white transition-all duration-300">
+                                            <AmenityIcon type={amenity.icon} />
+                                        </div>
+                                        <h3 className="font-serif text-xl text-[#2D2D2D] mb-3 group-hover:text-[#C9A962] transition-colors duration-300">
+                                            {amenity.name}
+                                        </h3>
+                                        <p className="text-sm text-[#5C5C5C] leading-relaxed">
+                                            {amenity.description}
+                                        </p>
+                                    </div>
+                                </AnimatedSection>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Gallery Section */}
+                <section id="gallery" className="py-24 lg:py-32 bg-[#F5F0E8]">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                        <AnimatedSection>
+                            <div className="text-center mb-16">
+                                <div className="mb-4 flex items-center justify-center gap-3">
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                    <span className="text-[#C9A962] text-sm tracking-[0.2em] uppercase">Visual Journey</span>
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                </div>
+                                <h2 className="font-serif text-4xl lg:text-5xl text-[#2D2D2D]">
+                                    Our <span className="text-gold">Gallery</span>
+                                </h2>
+                            </div>
+                        </AnimatedSection>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {galleryImages.map((image, index) => (
+                                <AnimatedSection key={image.id} delay={index * 100}>
+                                    <div className="group relative overflow-hidden rounded-lg aspect-[4/3] cursor-pointer">
+                                        <img
+                                            src={image.image}
+                                            alt={image.title}
+                                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                                        />
+                                        <div className="absolute inset-0 bg-[#2D2D2D]/0 group-hover:bg-[#2D2D2D]/50 transition-all duration-300 flex items-center justify-center">
+                                            <span className="text-white font-serif text-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                {image.title}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </AnimatedSection>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Testimonials Section */}
+                <section id="testimonials" className="py-24 lg:py-32 bg-cream">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                        <AnimatedSection>
+                            <div className="text-center mb-16">
+                                <div className="mb-4 flex items-center justify-center gap-3">
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                    <span className="text-[#C9A962] text-sm tracking-[0.2em] uppercase">Testimonials</span>
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                </div>
+                                <h2 className="font-serif text-4xl lg:text-5xl text-[#2D2D2D]">
+                                    Guest <span className="text-gold">Experiences</span>
+                                </h2>
+                            </div>
+                        </AnimatedSection>
+
+                        <div className="grid md:grid-cols-3 gap-8">
+                            {testimonials.map((testimonial, index) => (
+                                <AnimatedSection key={testimonial.id} delay={index * 150}>
+                                    <div className="bg-white rounded-xl p-8 shadow-lg relative">
+                                        <div className="absolute -top-4 left-8">
+                                            <svg className="w-8 h-8 text-[#C9A962]" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                                            </svg>
+                                        </div>
+                                        <div className="pt-6">
+                                            <StarRating rating={testimonial.rating} />
+                                            <p className="text-[#5C5C5C] leading-relaxed mt-6 mb-6 italic">
+                                                "{testimonial.text}"
+                                            </p>
+                                            <div className="flex items-center gap-4">
+                                                <img
+                                                    src={testimonial.avatar}
+                                                    alt={testimonial.name}
+                                                    className="w-12 h-12 rounded-full object-cover"
+                                                />
+                                                <div>
+                                                    <p className="font-medium text-[#2D2D2D]">{testimonial.name}</p>
+                                                    <p className="text-sm text-[#5C5C5C]">{testimonial.location}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </AnimatedSection>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Location Section */}
+                <section id="location" className="py-24 lg:py-32 bg-[#F5F0E8]">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                        <div className="grid lg:grid-cols-2 gap-16 items-center">
+                            <AnimatedSection>
+                                <div className="mb-4 flex items-center gap-3">
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                    <span className="text-[#C9A962] text-sm tracking-[0.2em] uppercase">Find Us</span>
+                                </div>
+                                <h2 className="font-serif text-4xl lg:text-5xl text-[#2D2D2D] mb-8">
+                                    Our <span className="text-gold">Location</span>
+                                </h2>
+                                <p className="text-[#5C5C5C] leading-relaxed mb-8">
+                                    Ideally situated along the pristine coastline, StayEase Hotel offers easy access to the region's most beautiful beaches, cultural attractions, and natural wonders.
+                                </p>
+                                <div className="space-y-4">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-[#C9A962]/10 flex items-center justify-center flex-shrink-0">
+                                            <svg className="w-5 h-5 text-[#C9A962]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-[#2D2D2D]">Address</p>
+                                            <p className="text-[#5C5C5C]">123 Coastal Boulevard, Paradise Bay<br />Maldives 20077</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-[#C9A962]/10 flex items-center justify-center flex-shrink-0">
+                                            <svg className="w-5 h-5 text-[#C9A962]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-[#2D2D2D]">Phone</p>
+                                            <p className="text-[#5C5C5C]">+960 123 4567</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-[#C9A962]/10 flex items-center justify-center flex-shrink-0">
+                                            <svg className="w-5 h-5 text-[#C9A962]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-[#2D2D2D]">Email</p>
+                                            <p className="text-[#5C5C5C]">reservations@stayease.com</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </AnimatedSection>
+
+                            <AnimatedSection delay={200}>
+                                <div className="bg-white rounded-xl overflow-hidden shadow-xl h-[400px] lg:h-[500px]">
+                                    <div className="w-full h-full bg-[#E8E2D9] flex items-center justify-center">
+                                        <div className="text-center">
+                                            <svg className="w-16 h-16 mx-auto text-[#C9A962] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                                            </svg>
+                                            <p className="text-[#5C5C5C]">Interactive Map</p>
+                                            <p className="text-sm text-[#5C5C5C]">123 Coastal Boulevard</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </AnimatedSection>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Contact / Booking Section */}
+                <section id="contact" className="py-24 lg:py-32 bg-charcoal">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                        <div className="grid lg:grid-cols-2 gap-16">
+                            <AnimatedSection>
+                                <div className="mb-4 flex items-center gap-3">
+                                    <div className="w-12 h-[1px] bg-[#C9A962]" />
+                                    <span className="text-[#C9A962] text-sm tracking-[0.2em] uppercase">Reservations</span>
+                                </div>
+                                <h2 className="font-serif text-4xl lg:text-5xl text-white mb-6">
+                                    Book Your <span className="text-[#C9A962]">Stay</span>
+                                </h2>
+                                <p className="text-white/70 leading-relaxed mb-8">
+                                    Begin your journey to relaxation and luxury. Fill out the form and our dedicated team will craft a personalized experience just for you.
+                                </p>
+
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-[#C9A962]/10 flex items-center justify-center">
+                                            <svg className="w-6 h-6 text-[#C9A962]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-white/50 text-sm">24/7 Support</p>
+                                            <p className="text-white">+960 123 4567</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-[#C9A962]/10 flex items-center justify-center">
+                                            <svg className="w-6 h-6 text-[#C9A962]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-white/50 text-sm">Email Us</p>
+                                            <p className="text-white">reservations@stayease.com</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </AnimatedSection>
+
+                            <AnimatedSection delay={200}>
+                                <form onSubmit={handleSubmit} className="bg-white rounded-xl p-8 shadow-2xl">
+                                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <label className="block text-sm text-[#5C5C5C] mb-2">Full Name</label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 bg-[#F5F0E8] rounded-lg border border-transparent focus:border-[#C9A962] focus:outline-none transition-colors"
+                                                placeholder="John Doe"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm text-[#5C5C5C] mb-2">Email Address</label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 bg-[#F5F0E8] rounded-lg border border-transparent focus:border-[#C9A962] focus:outline-none transition-colors"
+                                                placeholder="john@example.com"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <label className="block text-sm text-[#5C5C5C] mb-2">Phone Number</label>
+                                            <input
+                                                type="tel"
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 bg-[#F5F0E8] rounded-lg border border-transparent focus:border-[#C9A962] focus:outline-none transition-colors"
+                                                placeholder="+1 234 567 890"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm text-[#5C5C5C] mb-2">Room Type</label>
+                                            <select
+                                                name="roomType"
+                                                value={formData.roomType}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 bg-[#F5F0E8] rounded-lg border border-transparent focus:border-[#C9A962] focus:outline-none transition-colors"
+                                            >
+                                                <option value="">Select a room</option>
+                                                <option value="deluxe">Deluxe King Suite</option>
+                                                <option value="ocean">Ocean View Room</option>
+                                                <option value="garden">Garden Pavilion</option>
+                                                <option value="presidential">Presidential Suite</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-3 gap-6 mb-6">
+                                        <div>
+                                            <label className="block text-sm text-[#5C5C5C] mb-2">Check In</label>
+                                            <input
+                                                type="date"
+                                                name="checkIn"
+                                                value={formData.checkIn}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 bg-[#F5F0E8] rounded-lg border border-transparent focus:border-[#C9A962] focus:outline-none transition-colors"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm text-[#5C5C5C] mb-2">Check Out</label>
+                                            <input
+                                                type="date"
+                                                name="checkOut"
+                                                value={formData.checkOut}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 bg-[#F5F0E8] rounded-lg border border-transparent focus:border-[#C9A962] focus:outline-none transition-colors"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm text-[#5C5C5C] mb-2">Guests</label>
+                                            <input
+                                                type="number"
+                                                name="guests"
+                                                value={formData.guests}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 bg-[#F5F0E8] rounded-lg border border-transparent focus:border-[#C9A962] focus:outline-none transition-colors"
+                                                placeholder="2"
+                                                min="1"
+                                                max="10"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <label className="block text-sm text-[#5C5C5C] mb-2">Special Requests</label>
+                                        <textarea
+                                            name="message"
+                                            value={formData.message}
+                                            onChange={handleInputChange}
+                                            rows={4}
+                                            className="w-full px-4 py-3 bg-[#F5F0E8] rounded-lg border border-transparent focus:border-[#C9A962] focus:outline-none transition-colors resize-none"
+                                            placeholder="Any special requirements or requests..."
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        className="w-full py-4 bg-[#C9A962] text-white text-sm tracking-[0.2em] rounded-full hover:bg-[#2D2D2D] transition-all duration-300"
+                                    >
+                                        Request Reservation
+                                    </button>
+                                </form>
+                            </AnimatedSection>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Footer */}
+                <footer className="bg-[#1a1a1a] py-16">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                        <div className="grid md:grid-cols-4 gap-12 mb-12">
+                            <div className="md:col-span-2">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <span className="text-2xl font-serif font-semibold text-white">StayEase</span>
+                                    <span className="text-2xl font-serif text-[#C9A962]">Hotel</span>
+                                </div>
+                                <p className="text-white/60 leading-relaxed max-w-md">
+                                    Experience the pinnacle of luxury hospitality where every detail is crafted to perfection. Your journey to elegance begins here.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 className="text-white font-medium mb-4">Quick Links</h4>
+                                <ul className="space-y-2">
+                                    {['About', 'Rooms', 'Dining', 'Spa', 'Contact'].map((item) => (
+                                        <li key={item}>
+                                            <button
+                                                onClick={() => scrollToSection(item.toLowerCase())}
+                                                className="text-white/60 hover:text-[#C9A962] transition-colors text-sm"
+                                            >
+                                                {item}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="text-white font-medium mb-4">Connect</h4>
+                                <div className="flex gap-4">
+                                    {['facebook', 'instagram', 'twitter'].map((social) => (
+                                        <a
+                                            key={social}
+                                            href="#"
+                                            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#C9A962] transition-colors"
+                                        >
+                                            <span className="sr-only">{social}</span>
+                                            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10z" />
+                                            </svg>
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <p className="text-white/40 text-sm">
+                                © 2024 StayEase Hotel. All rights reserved.
                             </p>
-                            <ul className="mb-4 flex flex-col lg:mb-6">
-                                <li className="relative flex items-center gap-4 py-2 before:absolute before:top-1/2 before:bottom-0 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A]">
-                                    <span className="relative bg-white py-1 dark:bg-[#161615]">
-                                        <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A]" />
-                                        </span>
-                                    </span>
-                                    <span>
-                                        Read the
-                                        <a
-                                            href="https://laravel.com/docs"
-                                            target="_blank"
-                                            className="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
-                                        >
-                                            <span>Documentation</span>
-                                            <svg
-                                                width={10}
-                                                height={11}
-                                                viewBox="0 0 10 11"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-2.5 w-2.5"
-                                            >
-                                                <path
-                                                    d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                                    stroke="currentColor"
-                                                    strokeLinecap="square"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </span>
-                                </li>
-                                <li className="relative flex items-center gap-4 py-2 before:absolute before:top-0 before:bottom-1/2 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A]">
-                                    <span className="relative bg-white py-1 dark:bg-[#161615]">
-                                        <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A]" />
-                                        </span>
-                                    </span>
-                                    <span>
-                                        Watch video tutorials at
-                                        <a
-                                            href="https://laracasts.com"
-                                            target="_blank"
-                                            className="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
-                                        >
-                                            <span>Laracasts</span>
-                                            <svg
-                                                width={10}
-                                                height={11}
-                                                viewBox="0 0 10 11"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-2.5 w-2.5"
-                                            >
-                                                <path
-                                                    d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                                    stroke="currentColor"
-                                                    strokeLinecap="square"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </span>
-                                </li>
-                            </ul>
-                            <ul className="flex gap-3 text-sm leading-normal">
-                                <li>
-                                    <a
-                                        href="https://cloud.laravel.com"
-                                        target="_blank"
-                                        className="inline-block rounded-sm border border-black bg-[#1b1b18] px-5 py-1.5 text-sm leading-normal text-white hover:border-black hover:bg-black dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white"
-                                    >
-                                        Deploy now
-                                    </a>
-                                </li>
-                            </ul>
+                            <div className="flex gap-6">
+                                <a href="#" className="text-white/40 hover:text-[#C9A962] text-sm transition-colors">Privacy Policy</a>
+                                <a href="#" className="text-white/40 hover:text-[#C9A962] text-sm transition-colors">Terms of Service</a>
+                            </div>
                         </div>
-                        <div className="relative -mb-px aspect-[335/364] w-full shrink-0 overflow-hidden rounded-t-lg bg-[#fff2f2] lg:mb-0 lg:-ml-px lg:aspect-auto lg:w-[438px] lg:rounded-t-none lg:rounded-r-lg dark:bg-[#1D0002]">
-                            {/* Laravel Logo */}
-                            <svg
-                                className="w-full max-w-none translate-y-0 text-[#F53003] opacity-100 transition-all duration-750 dark:text-[#F61500] starting:opacity-0 motion-safe:starting:translate-y-6"
-                                viewBox="0 0 438 104"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M17.2036 -3H0V102.197H49.5189V86.7187H17.2036V-3Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M110.256 41.6337C108.061 38.1275 104.945 35.3731 100.905 33.3681C96.8667 31.3647 92.8016 30.3618 88.7131 30.3618C83.4247 30.3618 78.5885 31.3389 74.201 33.2923C69.8111 35.2456 66.0474 37.928 62.9059 41.3333C59.7643 44.7401 57.3198 48.6726 55.5754 53.1293C53.8287 57.589 52.9572 62.274 52.9572 67.1813C52.9572 72.1925 53.8287 76.8995 55.5754 81.3069C57.3191 85.7173 59.7636 89.6241 62.9059 93.0293C66.0474 96.4361 69.8119 99.1155 74.201 101.069C78.5885 103.022 83.4247 103.999 88.7131 103.999C92.8016 103.999 96.8667 102.997 100.905 100.994C104.945 98.9911 108.061 96.2359 110.256 92.7282V102.195H126.563V32.1642H110.256V41.6337ZM108.76 75.7472C107.762 78.4531 106.366 80.8078 104.572 82.8112C102.776 84.8161 100.606 86.4183 98.0637 87.6206C95.5202 88.823 92.7004 89.4238 89.6103 89.4238C86.5178 89.4238 83.7252 88.823 81.2324 87.6206C78.7388 86.4183 76.5949 84.8161 74.7998 82.8112C73.004 80.8078 71.6319 78.4531 70.6856 75.7472C69.7356 73.0421 69.2644 70.1868 69.2644 67.1821C69.2644 64.1758 69.7356 61.3205 70.6856 58.6154C71.6319 55.9102 73.004 53.5571 74.7998 51.5522C76.5949 49.5495 78.738 47.9451 81.2324 46.7427C83.7252 45.5404 86.5178 44.9396 89.6103 44.9396C92.7012 44.9396 95.5202 45.5404 98.0637 46.7427C100.606 47.9451 102.776 49.5487 104.572 51.5522C106.367 53.5571 107.762 55.9102 108.76 58.6154C109.756 61.3205 110.256 64.1758 110.256 67.1821C110.256 70.1868 109.756 73.0421 108.76 75.7472Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M242.805 41.6337C240.611 38.1275 237.494 35.3731 233.455 33.3681C229.416 31.3647 225.351 30.3618 221.262 30.3618C215.974 30.3618 211.138 31.3389 206.75 33.2923C202.36 35.2456 198.597 37.928 195.455 41.3333C192.314 44.7401 189.869 48.6726 188.125 53.1293C186.378 57.589 185.507 62.274 185.507 67.1813C185.507 72.1925 186.378 76.8995 188.125 81.3069C189.868 85.7173 192.313 89.6241 195.455 93.0293C198.597 96.4361 202.361 99.1155 206.75 101.069C211.138 103.022 215.974 103.999 221.262 103.999C225.351 103.999 229.416 102.997 233.455 100.994C237.494 98.9911 240.611 96.2359 242.805 92.7282V102.195H259.112V32.1642H242.805V41.6337ZM241.31 75.7472C240.312 78.4531 238.916 80.8078 237.122 82.8112C235.326 84.8161 233.156 86.4183 230.614 87.6206C228.07 88.823 225.251 89.4238 222.16 89.4238C219.068 89.4238 216.275 88.823 213.782 87.6206C211.289 86.4183 209.145 84.8161 207.35 82.8112C205.554 80.8078 204.182 78.4531 203.236 75.7472C202.286 73.0421 201.814 70.1868 201.814 67.1821C201.814 64.1758 202.286 61.3205 203.236 58.6154C204.182 55.9102 205.554 53.5571 207.35 51.5522C209.145 49.5495 211.288 47.9451 213.782 46.7427C216.275 45.5404 219.068 44.9396 222.16 44.9396C225.251 44.9396 228.07 45.5404 230.614 46.7427C233.156 47.9451 235.326 49.5487 237.122 51.5522C238.917 53.5571 240.312 55.9102 241.31 58.6154C242.306 61.3205 242.806 64.1758 242.806 67.1821C242.805 70.1868 242.305 73.0421 241.31 75.7472Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M438 -3H421.694V102.197H438V-3Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M139.43 102.197H155.735V48.2834H183.712V32.1665H139.43V102.197Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M324.49 32.1665L303.995 85.794L283.498 32.1665H266.983L293.748 102.197H314.242L341.006 32.1665H324.49Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M376.571 30.3656C356.603 30.3656 340.797 46.8497 340.797 67.1828C340.797 89.6597 356.094 104 378.661 104C391.29 104 399.354 99.1488 409.206 88.5848L398.189 80.0226C398.183 80.031 389.874 90.9895 377.468 90.9895C363.048 90.9895 356.977 79.3111 356.977 73.269H411.075C413.917 50.1328 398.775 30.3656 376.571 30.3656ZM357.02 61.0967C357.145 59.7487 359.023 43.3761 376.442 43.3761C393.861 43.3761 395.978 59.7464 396.099 61.0967H357.02Z"
-                                    fill="currentColor"
-                                />
-                            </svg>
-
-                            {/* 13 */}
-                            <svg
-                                className="relative -mt-[6.6rem] -ml-8 w-[438px] max-w-none [--stroke-color:#1B1B18] lg:ml-0 dark:[--stroke-color:#FF750F]"
-                                viewBox="0 0 440 392"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <g className="text-[#1B1B18] opacity-100 mix-blend-darken transition-all delay-300 duration-750 dark:text-black dark:mix-blend-normal starting:opacity-0">
-                                    <mask
-                                        id="path-1-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="-0.328613"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="-0.328613"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z" />
-                                        <path d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-1-mask)"
-                                    />
-                                    <path
-                                        d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-1-mask)"
-                                    />
-                                </g>
-
-                                <g className="text-[#F3BEC7] opacity-100 transition-all delay-400 duration-750 dark:text-[#4B0600] starting:opacity-0 motion-safe:starting:-translate-x-[26px]">
-                                    <mask
-                                        id="path-2-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="25.3357"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="25.3357"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z" />
-                                        <path d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-2-mask)"
-                                    />
-                                    <path
-                                        d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-2-mask)"
-                                    />
-                                </g>
-
-                                <g className="text-[#F8B803] opacity-100 mix-blend-color transition-all delay-400 duration-750 dark:text-[#391800] dark:mix-blend-hard-light starting:opacity-0 motion-safe:starting:-translate-x-[51px]">
-                                    <mask
-                                        id="path-3-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="51"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="51"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z" />
-                                        <path d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-3-mask)"
-                                    />
-                                    <path
-                                        d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-3-mask)"
-                                    />
-                                </g>
-
-                                <g className="text-[#F3BEC7] opacity-100 mix-blend-multiply transition-all delay-400 duration-750 dark:text-[#733000] dark:mix-blend-normal starting:opacity-0 motion-safe:starting:-translate-x-[78px]">
-                                    <mask
-                                        id="path-4-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="76.6643"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="76.6643"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z" />
-                                        <path d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-4-mask)"
-                                    />
-                                    <path
-                                        d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-4-mask)"
-                                    />
-                                </g>
-
-                                <g className="text-[#F3BEC7] opacity-100 mix-blend-hard-light transition-all delay-400 duration-750 dark:text-[#4B0600] starting:opacity-0 motion-safe:starting:-translate-x-[102px]">
-                                    <mask
-                                        id="path-5-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="102.329"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="102.329"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z" />
-                                        <path d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-5-mask)"
-                                    />
-                                    <path
-                                        d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-5-mask)"
-                                    />
-                                </g>
-                            </svg>
-                            <div className="absolute inset-0 rounded-t-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-t-none lg:rounded-r-lg dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"></div>
-                        </div>
-                    </main>
-                </div>
-                <div className="hidden h-14.5 lg:block"></div>
+                    </div>
+                </footer>
             </div>
         </>
     );

@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
 import { router, useForm } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import { 
     Dialog, 
     DialogContent, 
@@ -9,7 +10,6 @@ import {
     DialogDescription,
     DialogFooter 
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -69,7 +69,10 @@ interface Props {
 }
 
 const formatDateForInput = (dateStr: string | undefined): string => {
-    if (!dateStr) return '';
+    if (!dateStr) {
+return '';
+}
+
     return dateStr.split('T')[0];
 };
 
@@ -144,6 +147,7 @@ export default function Bookings({
     const calculatePrice = async () => {
         if (!data.room_id || !data.check_in_date || !data.check_out_date) {
             setPriceInfo({ nights: 0, price_per_night: 0, total: 0 });
+
             return;
         }
 
@@ -445,6 +449,7 @@ export default function Bookings({
                                     value={data.room_id}
                                     onValueChange={(value) => {
                                         setData('room_id', value);
+
                                         if (data.check_in_date && data.check_out_date) {
                                             setTimeout(calculatePrice, 100);
                                         }

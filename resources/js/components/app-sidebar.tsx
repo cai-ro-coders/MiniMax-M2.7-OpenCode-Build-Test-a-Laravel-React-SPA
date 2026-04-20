@@ -14,10 +14,10 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import rooms from '@/routes/rooms';
-import hotels from '@/routes/hotels';
-import guests from '@/routes/guests';
 import bookings from '@/routes/bookings';
+import guests from '@/routes/guests';
+import hotels from '@/routes/hotels';
+import rooms from '@/routes/rooms';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [

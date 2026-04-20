@@ -1,6 +1,8 @@
 import { Head } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
 import { router, useForm } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
     Dialog, 
     DialogContent, 
@@ -9,11 +11,9 @@ import {
     DialogDescription,
     DialogFooter 
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 
 interface Room {
     id: number;
@@ -112,6 +112,7 @@ export default function Rooms({
     const checkRoomNumber = async (roomNumber: string) => {
         if (!data.hotel_id || !roomNumber) {
             setRoomNumberError('');
+
             return;
         }
 
@@ -122,6 +123,7 @@ export default function Rooms({
         try {
             const response = await fetch(url);
             const result = await response.json();
+
             if (result.exists) {
                 setRoomNumberError('This room number already exists for the selected hotel.');
             } else {
@@ -136,6 +138,7 @@ export default function Rooms({
 
     const handleRoomNumberChange = (value: string) => {
         setData('room_number', value);
+
         if (value) {
             checkRoomNumber(value);
         } else {

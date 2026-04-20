@@ -1,7 +1,4 @@
 import { Head } from '@inertiajs/react';
-import { dashboard } from '@/routes';
-import { useEffect, useState } from 'react';
-import { Bar, Doughnut } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -12,6 +9,9 @@ import {
     Legend,
     ArcElement,
 } from 'chart.js';
+import { useEffect, useState } from 'react';
+import { Bar, Doughnut } from 'react-chartjs-2';
+import { dashboard } from '@/routes';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
